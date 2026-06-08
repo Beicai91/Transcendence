@@ -1,135 +1,174 @@
-# 🏓 Transcendence  
+# Transcendence
 
-A **real-time multiplayer Pong platform** built at [42 Lausanne](https://42lausanne.ch).  
-Play here: https://transcendence-frontend-923872734712.europe-west6.run.app/register
+A real-time multiplayer Pong platform built at [42 Lausanne](https://42lausanne.ch).
 
-![alt text](pong.png)
+Transcendence is a full-stack web application featuring multiplayer Pong, matchmaking, tournaments, live chat, user accounts management, and an experimental AI opponent.
 
-Includes **matchmaking, tournaments, live chat**, and an **experimental AI opponent** trained with evolutionary techniques under sparse input constraints.  
-
-📄 **UX/UI & Architecture Diagrams:** [View PDF] https://acrobat.adobe.com/id/urn:aaid:sc:EU:c3863cb2-9cd6-48f1-8df0-6c5ee7b17891
-
-![alt text](image.png)
----
-
-## 📌 Overview  
-
-**Team project with Bei, Damian, George, and Eva.**  
-- Co-designed the **Domain-Driven + Event-Driven hybrid architecture**.  
-- Developed using **TypeScript (frontend)**, **Fastify (backend)**, **Python (AI models)**.  
-- Fully **Dockerized** and deployed to **Google Cloud Run** with **Nginx SSL reverse proxy**.  
-
-### My Contributions:  
-- **Architecture:** collaborative design sessions.  
-- **Server-Side Pong Engine:** ball & paddle physics, scoring, server authority.  
-- **WebSockets integration:** real-time loop between backend & frontend.  
-- **AI Opponent:** trained with NEAT, experiments with RNN & Deep Q-Learning.  
-- **UI/UX:** TypeScript + TailwindCSS.  
-- **Deployment:** Docker Compose + Cloud Run + Nginx reverse proxy.  
+**Play here:**
+[https://transcendence-frontend-923872734712.europe-west6.run.app/register](https://transcendence-frontend-923872734712.europe-west6.run.app/register)
 
 ---
 
-## 🤖 AI Opponent  
+## Installation
 
-- Trained with **NEAT (NeuroEvolution of Augmenting Topologies)**.  
-- **Constraint:** AI sees the game state only once per second.  
-- Custom methods: **data pruning, early stopping, preventing network bloat**.  
-- Trained **hundreds of models** → final network plays consistent, strong Pong.  
-- Exported from **Pickle → JSON** → embedded in backend.  
-- Parallel experiments with **RNN** and **Deep Q-Learning**.  
+Clone the repository:
 
----
-
-## ✨ Features  
-
-- ✅ Multiplayer Pong (server-side game loop)  
-- ✅ AI opponent with evolutionary training (JSON model)  
-- ✅ Matchmaking: invites, AI mode, tournaments  
-- ✅ Live chat via WebSockets  
-- ✅ User management (auth, nicknames)  
-- ✅ Match results stored in SQLite  
-
----
-
-## 🛠 Tech Stack  
-
-| Layer       | Technology                              |  
-|-------------|-----------------------------------------|  
-| **Frontend** | Custom framework (TypeScript)           |  
-| **Backend**  | Node.js, Fastify, Socket.IO             |  
-| **AI**       | Python (NEAT, RNN) → exported JSON      |  
-| **Database** | SQLite                                  |  
-| **Infra**    | Docker, Nginx, Google Cloud Run         |  
-| **Arch**     | Domain-Driven + Event-Driven Hybrid     |  
-
----
-
-## 🔑 Local Deployment Setup  
-
-1. Clone the repo:  
 ```bash
 git clone https://github.com/whatevacreates/transcendence.git
 cd transcendence
+```
 
-2. Add SSL certificates
+Add SSL certificates inside the `nginx/ssl` directory.
 
-Inside nginx/ssl, add:
+Create the directory:
 
-privkey.pem
-
-cert.pem
-
-Generate local dev certs:
-
+```bash
 cd nginx
-
 mkdir ssl
+cd ssl
+```
 
-chmod +x ssl
+Generate local development certificates:
 
+```bash
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout privkey.pem \
-    -out cert.pem \
-    -subj "/CN=localhost"
+  -keyout privkey.pem \
+  -out cert.pem \
+  -subj "/CN=localhost"
+```
 
-3. Add environment file
+The expected files are:
 
-Contact me → eva.anna.dev@gmail.com
- for .env, then place it in project root.
+```text
+nginx/ssl/privkey.pem
+nginx/ssl/cert.pem
+```
 
-4. Start Docker
+Run the project with Docker Compose:
 
-Ensure Docker daemon is running.
+```bash
+docker compose up --build
+```
 
-5. Run project: 
+---
 
-- make sure that port 8080 is free
-make prod-up
+## Usage
+
+Once the application is running, open the frontend in your browser.
+
+Depending on your local configuration, the app should be available through the Nginx entry point, usually at:
+
+```text
+https://localhost
+```
+
+---
+
+## Dev features
+
+### Main user-facing features :
+
+* Registering and logging in
+* Choosing a nickname
+* Playing real-time Pong matches
+* Playing against the AI opponent
+* Joining matchmaking
+* Participating in tournaments
+* Using live chat
+* Managing friendship
+* Viewing stored match results
+  
+### Server-side Pong engine
+
+The Pong game logic is handled server-side to keep the backend authoritative.
+
+The server manages:
+
+* Ball movement
+* Paddle movement
+* Collision detection
+* Score calculation
+* Game state updates
+* Match lifecycle
+* Synchronization with frontend clients through WebSockets
+
+### WebSockets
+
+Real-time communication is implemented with WebSockets using Socket.IO.
+
+WebSockets are used for:
+
+* Sending player inputs to the backend
+* Broadcasting game state updates
+* Managing live matches
+* Handling chat messages
+* Supporting matchmaking and tournament interactions
+
+### Architecture
+
+The project uses a hybrid architecture combining:
+
+* **Domain-Driven Design**, to separate business logic from meaningful domains
+* **Event-Driven Design**, to manage real-time interactions and asynchronous game events
+
+This structure was especially useful for separating concerns between authentication, matchmaking, tournaments, chat, game state, and AI behavior.
+
+### Deployment
+
+The project is fully Dockerized and deployed on **Google Cloud Run**.
+
+The infrastructure includes:
+
+* Dockerized frontend
+* Dockerized backend
+* Nginx reverse proxy
+* SSL configuration
+* Cloud deployment through Google Cloud Run
 
 
-This spins up frontend, backend, database, and Nginx proxy.
-Accessible at: https://localhost:8443/login
+### AI opponent
 
-(accept “unsafe” warning for self-signed certs).
+The AI opponent was trained using **NEAT**, NeuroEvolution of Augmenting Topologies.
 
-🌍 Deployment
+The main experimental constraint was that the AI could observe the game state only once per second. This made the training harder, because the model had to learn useful behavior from sparse input rather than continuous frame-by-frame information.
 
-Docker images published to Docker Hub.
+Several optimization methods were used during training:
 
-Google Cloud Run for scalable hosting (frontend + backend).
+* Data pruning
+* Early stopping
+* Preventing unnecessary network bloat
+* Training and comparing hundreds of models
+* Exporting the final model from Pickle to JSON
 
-Nginx reverse proxy for SSL termination.
+The final JSON model is embedded directly into the backend and can play Pong consistently.
 
-CI/CD pipeline: GitHub → Cloud Run.
+Additional experiments were also made with:
 
-📌 Notes
+* RNN models
+* Deep Q-Learning
 
-AI model exported as JSON and embedded into backend at runtime.
+---
 
-Python training code (NEAT, RNN, DQN) lives in a separate repo.
+## Technical notes
 
-SQLite used locally; Cloud Run deployment DB is ephemeral.
+### Tech stack
 
-🔥 Built with 42 spirit
+| Layer          | Technology                                                 |
+| -------------- | ---------------------------------------------------------- |
+| Frontend       | Custom framework, TypeScript, TailwindCSS                  |
+| Backend        | Node.js, Fastify, Socket.IO                                |
+| AI             | Python, NEAT, RNN experiments, Deep Q-Learning experiments |
+| Database       | SQLite                                                     |
+| Infrastructure | Docker, Docker Compose, Nginx, Google Cloud Run            |
+| Architecture   | Domain-Driven + Event-Driven hybrid architecture           |
 
-Modular, scalable, experimental — and fun.
+
+---
+
+## Demo
+
+Live demo:
+
+[https://transcendence-frontend-923872734712.europe-west6.run.app/register](https://transcendence-frontend-923872734712.europe-west6.run.app/register)
+
+
